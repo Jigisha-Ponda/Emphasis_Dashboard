@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import {
+
+
   getAccessToken,
   fetchInstruments,
   getOhlcMap,
@@ -9,6 +11,9 @@ import {
   fetchIntradayCandles,
   formatRows
 } from "../_shared";
+
+export const dynamic = "force-dynamic";
+
 
 const HIST_LOOKBACK_DAYS = 60;
 const MAX_CANDIDATES = 150;

@@ -1,8 +1,12 @@
 import axios from "axios";
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+
+export const dynamic = "force-dynamic";
+
+
 
 export async function GET(req: Request) {
+  const { prisma } = await import("@/lib/prisma");
   try {
     const { searchParams } = new URL(req.url);
     const code = searchParams.get("code");

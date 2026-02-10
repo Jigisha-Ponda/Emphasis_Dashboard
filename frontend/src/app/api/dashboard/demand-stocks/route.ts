@@ -1,10 +1,15 @@
 import { NextResponse } from "next/server";
 import {
+
+
   getAccessToken,
   fetchInstruments,
   getOhlcMap,
   parseDaily
 } from "../_shared";
+
+export const dynamic = "force-dynamic";
+
 
 export async function GET() {
   const token = await getAccessToken();

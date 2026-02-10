@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+
+
+
+
 export async function GET() {
   const clientId = process.env.UPSTOX_CLIENT_ID;
   const redirectUri = process.env.UPSTOX_REDIRECT_URI;

@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+
+export const dynamic = "force-dynamic";
 
 const UPSTOX_API = "https://api.upstox.com/v2";
 
+
 export async function POST(req: Request) {
+  const { prisma } = await import("@/lib/prisma");
   const body = await req.json().catch(() => ({}));
   const code = body?.code;
   if (!code) {

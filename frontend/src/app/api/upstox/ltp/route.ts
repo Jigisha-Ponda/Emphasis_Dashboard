@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+
+export const dynamic = "force-dynamic";
 
 const UPSTOX_API = "https://api.upstox.com/v2";
 
+
 export async function GET(req: Request) {
+  const { prisma } = await import("@/lib/prisma");
   const latest = await prisma.upstoxSession.findFirst({
     orderBy: { createdAt: "desc" }
   });

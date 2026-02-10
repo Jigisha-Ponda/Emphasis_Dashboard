@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+
+
+
+
 const UPSTOX_API = "https://api.upstox.com/v2";
 const DEFAULT_INSTRUMENT_KEY = "NSE_INDEX|Nifty 50";
 const DEFAULT_VIX_KEY = "NSE_INDEX|India VIX";

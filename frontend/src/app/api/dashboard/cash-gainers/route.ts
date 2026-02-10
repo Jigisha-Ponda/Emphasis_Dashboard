@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import {
+
+
   getAccessToken,
   fetchInstruments,
   getOhlcMap,
@@ -8,6 +10,9 @@ import {
   computeSma,
   formatRows
 } from "../_shared";
+
+export const dynamic = "force-dynamic";
+
 
 const HIST_LOOKBACK_DAYS = 35;
 const SMA_PERIOD = 20;
