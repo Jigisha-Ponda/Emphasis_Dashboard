@@ -12,6 +12,21 @@
 /.next/
 /out/
 
+
+# Node modules
+node_modules/
+
+# Next.js build
+.next/
+out/
+
+# Prisma
+prisma/migrations/
+.env
+
+# Logs
+*.log
+
 # production
 /build
 
