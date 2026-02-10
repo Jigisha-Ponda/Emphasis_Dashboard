@@ -1,10 +1,16 @@
 // src/app/api/auth/[...nextauth]/route.ts
 import NextAuth from "next-auth";
-import { authOptions } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
-const handler = NextAuth(authOptions);
+export async function GET(req: Request) {
+  const { authOptions } = await import("@/lib/auth");
+  const handler = NextAuth(authOptions);
+  return handler(req);
+}
 
-// ✅ Export as GET & POST for App Router
-export { handler as GET, handler as POST };
+export async function POST(req: Request) {
+  const { authOptions } = await import("@/lib/auth");
+  const handler = NextAuth(authOptions);
+  return handler(req);
+}
