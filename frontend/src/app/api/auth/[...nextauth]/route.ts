@@ -8,7 +8,7 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 
 // Define auth options normally
-const authOptions: NextAuthOptions = {
+export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   session: { strategy: "jwt" },
   pages: { signIn: "/login" },
