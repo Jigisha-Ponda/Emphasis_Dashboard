@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth";
 import TokenVaultClient from "./TokenVaultClient";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 
 const ADMIN_EMAILS = ["dharmikponda77@gmail.com"];
 

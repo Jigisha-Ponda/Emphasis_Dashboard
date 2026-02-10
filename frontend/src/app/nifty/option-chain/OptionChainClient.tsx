@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 const formatNumber = (value: number | null | undefined) => {
   if (value === null || value === undefined) return "-";
@@ -292,9 +292,9 @@ export default function OptionChainClient({
       nearSupport,
       nearResistance
     };
-  }, [data.chain, data.step, history5m, history15m, spotPrice]);
+  }, [data.chain, data.step, divergenceCooldown, history5m, history15m, lastDivergenceAt, spotPrice]);
 
-  const loadExpiry = async (expiry: string, silent = false) => {
+  const loadExpiry = useCallback(async (expiry: string, silent = false) => {
     if (expiry === data.expiry && !silent) return;
     setLoading(true);
     setError(null);
@@ -314,9 +314,9 @@ export default function OptionChainClient({
     } finally {
       if (!silent) setLoading(false);
     }
-  };
+  }, [data.expiry, instrumentKey]);
 
-  const loadLtp = async () => {
+  const loadLtp = useCallback(async () => {
     const now = Date.now();
     if (now - lastLtpAt < 10000) return; // throttle to 10s
     try {
@@ -348,7 +348,7 @@ export default function OptionChainClient({
     } catch {
       // ignore
     }
-  };
+  }, [instrumentKey, lastLtpAt, ltpKeys, vixKey]);
 
   useEffect(() => {
     setData(initialData);
@@ -356,7 +356,7 @@ export default function OptionChainClient({
     setHistory5m(initialData.priceHistory5m ?? initialData.priceHistory ?? []);
     setHistory15m(initialData.priceHistory15m ?? []);
     loadLtp();
-  }, [initialData]);
+  }, [initialData, loadLtp]);
 
   useEffect(() => {
     let cancelled = false;
@@ -465,12 +465,12 @@ export default function OptionChainClient({
       cancelled = true;
       clearInterval(id);
     };
-  }, [activeExpiry]);
+  }, [activeExpiry, instrumentKey, maxCallOiChg, maxPutOiChg]);
 
   useEffect(() => {
     const id = setInterval(loadLtp, 10000);
     return () => clearInterval(id);
-  }, [lastLtpAt]);
+  }, [loadLtp]);
 
   useEffect(() => {
     if (signal.divergence && !prevDivergence.current) {
@@ -643,6 +643,7 @@ export default function OptionChainClient({
               const callLtp = pickNumber(callMarket, ["ltp", "last_price", "last_traded_price"]);
               const callOi = pickNumber(callMarket, ["oi", "open_interest"]);
               const callOiChg = oiChange(callMarket);
+              const callOiChgSafe = callOiChg ?? 0;
               const callVol = pickNumber(callMarket, ["volume", "volume_traded"]);
               const callIv = pickNumber(callGreeks, ["iv", "implied_volatility"]);
               const callDelta = pickNumber(callGreeks, ["delta"]);
@@ -653,6 +654,7 @@ export default function OptionChainClient({
               const putLtp = pickNumber(putMarket, ["ltp", "last_price", "last_traded_price"]);
               const putOi = pickNumber(putMarket, ["oi", "open_interest"]);
               const putOiChg = oiChange(putMarket);
+              const putOiChgSafe = putOiChg ?? 0;
               const putVol = pickNumber(putMarket, ["volume", "volume_traded"]);
               const putIv = pickNumber(putGreeks, ["iv", "implied_volatility"]);
               const putDelta = pickNumber(putGreeks, ["delta"]);
@@ -674,7 +676,7 @@ export default function OptionChainClient({
                   <td className="calls">{formatNumber(callTheta)}</td>
                   <td className="calls">{formatNumber(callDelta)}</td>
                   <td className={`calls ${highlights[row.strike]?.call || ""}`}>
-                    <div className={`oi-bar call ${callOiChg >= 0 ? "pos" : "neg"}`}>
+                    <div className={`oi-bar call ${callOiChgSafe >= 0 ? "pos" : "neg"}`}>
                       <span style={{ width: `${callOiChgPct}%` }} />
                     </div>
                     {formatCompact(callOiChg)}
@@ -697,7 +699,7 @@ export default function OptionChainClient({
                     {formatCompact(oiLakhs(putOi))}
                   </td>
                   <td className={`puts ${highlights[row.strike]?.put || ""}`}>
-                    <div className={`oi-bar put ${putOiChg >= 0 ? "pos" : "neg"}`}>
+                    <div className={`oi-bar put ${putOiChgSafe >= 0 ? "pos" : "neg"}`}>
                       <span style={{ width: `${putOiChgPct}%` }} />
                     </div>
                     {formatCompact(putOiChg)}

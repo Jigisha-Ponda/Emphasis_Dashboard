@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 type PcrRecord = Record<string, string | number>;
 
@@ -59,7 +59,7 @@ export default function PcrTableClient({
   const lastTopKeyRef = useRef<string | null>(null);
   const flashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     try {
       const url = new URL("/api/nifty/pcr", window.location.origin);
       if (instrumentKey) url.searchParams.set("instrument_key", instrumentKey);
@@ -71,13 +71,13 @@ export default function PcrTableClient({
     } catch (e: any) {
       setError(e?.message || "Failed to load PCR");
     }
-  };
+  }, [instrumentKey]);
 
   useEffect(() => {
     load();
     const id = setInterval(load, 3000);
     return () => clearInterval(id);
-  }, []);
+  }, [load]);
 
   useEffect(() => {
     return () => {

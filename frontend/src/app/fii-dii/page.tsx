@@ -177,6 +177,25 @@ const dataByDate = {
 const dates = Object.keys(dataByDate);
 
 export default function FiiDiiPage() {
+  const [selectedDate, setSelectedDate] = useState(dates[0]);
+  const [openSegments, setOpenSegments] = useState<Record<string, boolean>>({
+    "FII-Index Futures": false,
+    "FII-Index Options": false,
+    "Pro-Index Futures": false,
+    "Pro-Index Options": false,
+    "Client-Index Futures": false,
+    "Client-Index Options": false
+  });
+
+  const data = dataByDate[selectedDate as keyof typeof dataByDate];
+  const labelDate = useMemo(() => {
+    const [y, m, d] = selectedDate.split("-");
+    const month = new Date(Number(y), Number(m) - 1, Number(d)).toLocaleString("en-US", {
+      month: "short"
+    });
+    return `${d} ${month} ${y}`;
+  }, [selectedDate]);
+
   if (DISABLED_NOTICE) {
     return (
       <main className="page fii-dii">
@@ -203,24 +222,6 @@ export default function FiiDiiPage() {
       </main>
     );
   }
-  const [selectedDate, setSelectedDate] = useState(dates[0]);
-  const [openSegments, setOpenSegments] = useState<Record<string, boolean>>({
-    "FII-Index Futures": false,
-    "FII-Index Options": false,
-    "Pro-Index Futures": false,
-    "Pro-Index Options": false,
-    "Client-Index Futures": false,
-    "Client-Index Options": false
-  });
-
-  const data = dataByDate[selectedDate as keyof typeof dataByDate];
-  const labelDate = useMemo(() => {
-    const [y, m, d] = selectedDate.split("-");
-    const month = new Date(Number(y), Number(m) - 1, Number(d)).toLocaleString("en-US", {
-      month: "short"
-    });
-    return `${d} ${month} ${y}`;
-  }, [selectedDate]);
 
   return (
     <main className="page fii-dii">

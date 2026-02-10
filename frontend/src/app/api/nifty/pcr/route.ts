@@ -19,6 +19,20 @@ type OptionChainRow = {
   put_options?: { market_data?: Record<string, unknown> } | Record<string, unknown>;
 };
 
+type LtpEntry = {
+  last_price?: number;
+  instrument_token?: string;
+};
+
+type LtpMap = Record<string, LtpEntry>;
+
+type QuoteEntry = {
+  average_price?: number;
+  instrument_token?: string;
+};
+
+type QuoteMap = Record<string, QuoteEntry>;
+
 let lastFiveRecords: any[] = [];
 
 async function getAccessToken() {
@@ -81,8 +95,8 @@ async function resolveLtpAndVwap(
   const keys = [primary, ...fallbacks];
   for (const k of keys) {
     const ltpRes = await upstoxLtp([k], token);
-    const ltpData = ltpRes.ok
-      ? ltpRes.data?.data?.data || ltpRes.data?.data || {}
+    const ltpData: LtpMap = ltpRes.ok
+      ? (ltpRes.data?.data?.data as LtpMap) || (ltpRes.data?.data as LtpMap) || {}
       : {};
     const altKey = k.replace("|", ":");
     const byKey =
@@ -90,8 +104,8 @@ async function resolveLtpAndVwap(
       ltpData[altKey]?.last_price ??
       null;
     const byToken = Object.values(ltpData).find(
-      (v: any) => v?.instrument_token === k || v?.instrument_token === altKey
-    ) as any;
+      (v) => v?.instrument_token === k || v?.instrument_token === altKey
+    );
     const last =
       byKey ??
       byToken?.last_price ??
@@ -99,7 +113,7 @@ async function resolveLtpAndVwap(
       null;
 
     const quoteRes = await upstoxQuote([k], token);
-    const quoteData = quoteRes.ok ? quoteRes.data?.data || {} : {};
+    const quoteData: QuoteMap = quoteRes.ok ? (quoteRes.data?.data as QuoteMap) || {} : {};
     const vwap =
       quoteData[k]?.average_price ??
       quoteData[altKey]?.average_price ??
