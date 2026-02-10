@@ -1,11 +1,14 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
 
 const ADMIN_EMAILS = ["dharmikponda77@gmail.com"];
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: Request) {
+  const { authOptions } = await import("@/lib/auth");
+  const { prisma } = await import("@/lib/prisma");
+
   const session = await getServerSession(authOptions);
   const email = session?.user?.email || "";
 
