@@ -1,3 +1,4 @@
+// src/app/api/auth/[...nextauth]/route.ts
 import NextAuth, { type NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
@@ -6,8 +7,8 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 
-// 1️⃣ Define auth options normally
-export const authOptions: NextAuthOptions = {
+// Define auth options normally
+const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   session: { strategy: "jwt" },
   pages: { signIn: "/login" },
@@ -36,9 +37,7 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async signIn() {
-      return true;
-    },
+    async signIn() { return true; },
     async jwt({ token, user }) {
       if (user?.id) token.sub = user.id;
       return token;
@@ -55,8 +54,8 @@ export const authOptions: NextAuthOptions = {
   },
 };
 
-// 2️⃣ Create the handler by calling NextAuth with **ONLY authOptions**
+// ✅ Create NextAuth handler **without exporting authOptions**
 const handler = NextAuth(authOptions);
 
-// 3️⃣ Export GET & POST for App Router
+// ✅ Export as GET & POST for App Router
 export { handler as GET, handler as POST };
