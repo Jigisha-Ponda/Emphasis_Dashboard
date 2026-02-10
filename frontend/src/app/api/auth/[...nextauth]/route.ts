@@ -4,7 +4,9 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import { NextRequest } from "next/server";
 
+// 1️⃣ Define auth options normally
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   session: { strategy: "jwt" },
@@ -13,13 +15,13 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || "",
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
-      allowDangerousEmailAccountLinking: true
+      allowDangerousEmailAccountLinking: true,
     }),
     CredentialsProvider({
       name: "Credentials",
       credentials: {
         email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
         const email = credentials?.email?.toLowerCase().trim();
@@ -30,8 +32,8 @@ export const authOptions: NextAuthOptions = {
         const ok = await bcrypt.compare(password, user.password);
         if (!ok) return null;
         return { id: user.id, email: user.email, name: user.name };
-      }
-    })
+      },
+    }),
   ],
   callbacks: {
     async signIn() {
@@ -42,18 +44,19 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }) {
-      if (session.user && token.sub) {
-        (session.user as any).id = token.sub;
-      }
+      if (session.user && token.sub) (session.user as any).id = token.sub;
       return session;
     },
     async redirect({ url, baseUrl }) {
       if (url.includes("/login")) return baseUrl;
       if (url.startsWith(baseUrl)) return url;
       return baseUrl;
-    }
-  }
+    },
+  },
 };
 
+// 2️⃣ Create the handler by calling NextAuth with **ONLY authOptions**
 const handler = NextAuth(authOptions);
+
+// 3️⃣ Export GET & POST for App Router
 export { handler as GET, handler as POST };
